@@ -1,0 +1,64 @@
+---
+import { sanityClient } from "sanity:client";
+import Layout from "../../layouts/Layout.astro";
+import Card from "../../components/Card.astro";
+import {slugify, unSlugify} from '../../lib/Slugify' // Make sure both functions are imported
+import { loadQuery } from "../../lib/load-query";
+import type { SanityDocument } from "@sanity/client";
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const { data: posts } = await loadQuery<SanityDocument[]>({
+    query: `*[_type == "post"]{ tags }`,
+  });
+
+  // Extract and flatten tags with null safety
+  const allTags = [...new Set(
+    posts.flatMap(post => post.tags || [])
+      .filter(Boolean) // Remove any null/undefined values
+      .map(tag => tag.trim()) // Clean up whitespace
+  )];
+  // console.log("sssssss",allTags);
+  
+
+  return allTags.map(tag => ({
+    params: { 
+      tag: slugify(tag) // Convert to URL-safe format
+    },
+    // props: {
+    //   originalTag: tag // Pass original tag for querying
+    // }
+  }));
+}
+
+const { tag } = Astro.params;
+// const { originalTag } = Astro.props;
+
+// console.log(unSlugify(tag));
+// console.log((tag));
+// console.log(originalTag);
+
+
+// Get posts using original tag name from Sanity
+const filteredPosts = await sanityClient.fetch(
+  `*[_type == "post" && $tag in tags[]]{
+    title,
+    "slug": slug.current,
+    "mainImage": coalesce(mainImage.asset->url, ""),
+    tags
+  }`,
+  { tag: unSlugify(tag) }
+);
+// console.log(filteredPosts);
+
+---
+
+<Layout>
+  <h1 class="font-bold mt-10 text-center">Posts related to {tag}</h1>
+  {filteredPosts.length > 0 ? (
+    <div class="mb-4 mt-10 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
+      {filteredPosts.map((post) => <Card post={post} />)}
+    </div>
+  ) : <p>No posts available related to {originalTag}</p>}
+</Layout>

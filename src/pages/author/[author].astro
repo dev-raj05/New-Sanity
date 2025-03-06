@@ -1,0 +1,98 @@
+---
+import { sanityClient } from "sanity:client";
+import { loadQuery } from "../../lib/load-query";
+import type { SanityDocument } from "@sanity/client";
+import { unSlugify } from "../../lib/Slugify";
+import Layout from "../../layouts/Layout.astro";
+import Card from "../../components/Card.astro";
+import PortableText from "../../components/PortableText.astro";
+
+export const prerender = true
+export async function getStaticPaths() {
+  const { data: posts } = await loadQuery<SanityDocument[]>({
+    query: `*[_type == "post"]{
+      author->{
+        "slug": slug.current
+      }
+    }`,
+  });
+
+  const uniqueAuthors = Array.from(
+    new Set(posts.map(({ author }) => author?.slug).filter(Boolean))
+  );
+
+  return uniqueAuthors.map((slug) => ({
+    params: { author: slug },
+  }));
+}
+
+const { author } = Astro.params;
+const realName = unSlugify(author);
+
+// Fetch author details
+const authorData = await sanityClient.fetch(
+  `*[_type == "author" && slug.current == $author][0]{
+    _id,
+    name,
+    bio,
+    "imageUrl": image.asset->url
+  }`,
+  { author }
+);
+
+// console.log("Author Data:", authorData);
+
+if (!authorData) {
+  throw new Error("Author not found");
+}
+
+// Fetch posts using author's _id instead of author->name
+const authorPosts = await sanityClient.fetch(
+  `*[_type == "post" && author._ref == $authorId]{
+    _id,
+    title,
+    "slug": slug.current,
+    "mainImage": mainImage.asset->url,
+    publishedAt,
+    tags
+  }`,
+  { authorId: authorData._id }
+);
+
+// console.log("Author Posts:", authorPosts);
+
+
+// console.log("hhhhhhhhhhh",authorPosts);
+
+---
+
+<Layout title="Author" description="Author page">
+  <div class="max-w-4xl mx-auto px-6">
+    <!-- Author Profile Section -->
+    <div class="flex flex-col items-center text-center mt-10">
+      {authorData?.imageUrl  ? (<img 
+        src={authorData.imageUrl} 
+        alt={authorData.name} 
+        class="w-20 h-20 md:w-30 md:h-30 rounded-full shadow-lg "
+      />) : (
+      <img 
+          src={"https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"} 
+          alt={authorData.name} 
+          class="w-20 h-20 md:w-30 md:h-30 rounded-full shadow-lg"
+        />
+      )}
+      <h1 class="text-3xl font-bold mt-4">{authorData.name}</h1>
+      <p class="text-gray-500"><PortableText portableText={authorData.bio} /></p>
+    </div>
+
+    <!-- Posts Section -->
+    <h2 class="text-2xl font-bold mt-4 mb-4 text-center">Posts</h2>
+    {authorPosts.length > 0 ? (
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+        {authorPosts.map((post) => <Card post={post} />)}
+      </div>
+    ) : (
+      <p class="text-center text-gray-500">No posts available for this author.</p>
+    )}
+  </div>
+</Layout>

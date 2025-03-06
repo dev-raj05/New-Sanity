@@ -1,0 +1,122 @@
+/* public/styles.css */
+
+/* Example custom styles for your blog content */
+
+/* h1 {
+  font-size: 4rem;
+}
+h2 {
+  font-size: 2rem;
+} */
+/* body {
+  background-color: #f5f4f4;
+} */
+body {
+  font-family: "Poppins", serif;
+  /* font-weight: 100; */
+  /* font-style: normal; */
+}
+.share-btn {
+  position: relative;
+  border: none;
+  background: #fff;
+  color: #ff7d7d;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 30px;
+  padding-top: 2.5px;
+  padding-right: 3px;
+  cursor: pointer;
+  z-index: 2;
+}
+.share-options {
+  position: absolute;
+  bottom: 50%;
+  left: 50%;
+  width: 300px;
+  height: 300px;
+  transform-origin: bottom left;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  background: rgba(15, 15, 15, 0.5);
+  color: #fff;
+  padding: 20px;
+  font-family: "roboto";
+  transition: 0.5s;
+  transition-delay: 0.5s;
+}
+p {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  color: #555;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #444;
+}
+ol {
+  counter-reset: item;
+  list-style: none; /* Remove default numbering */
+  padding-left: 0;
+  margin-left: 0;
+}
+/* Style each list item */
+ol li {
+  counter-increment: item;
+  margin-bottom: 8px;
+  position: relative;
+  padding-left: 1.2em; /* Space for the generated number */
+}
+
+/* Generate the hierarchical numbering */
+ol li::before {
+  content: counters(item, ".") ". ";
+  position: absolute;
+  left: 0;
+  font-weight: bold;
+}
+
+/* Optional: Indent nested ordered lists */
+ol li ol {
+  margin-top: 4px;
+  margin-left: 1.5em;
+}
+
+/* img {
+  border-radius: 1rem;
+} */
+.head-img {
+  width: 100%;
+  object-fit: cover;
+  height: 30rem;
+}
+
+.large {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: #555;
+}
+
+blockquote {
+  border-left: 4px solid #ccc;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+  color: #666;
+}
+
+/* If you need to style your image further, you can add rules here */
+.content-image {
+  max-width: 100%;
+  height: auto;
+  margin: 1rem 0;
+}

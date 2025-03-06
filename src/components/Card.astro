@@ -1,0 +1,40 @@
+---
+const { post } = Astro.props;
+---
+
+<div class="card rounded-xl overflow-hidden bg-white shadow-xl transition-transform duration-500 hover:-translate-y-1 hover:scale-105">
+    <a href={`/posts/${post.slug}/`} class="block">
+      {/* Large Image */}
+      <figure class="w-full">
+        <img
+          class="w-full h-64 object-cover"
+          src={post.mainImage}
+          alt={post.alt}
+        />
+      </figure>
+  
+      {/* Content Section */}
+      <div class="p-5">
+        {/* Tags */}
+        <div class="flex flex-wrap gap-2 text-xs mb-2">
+          {post.tags?.map((tag) => (
+            <span class="badge badge-outline k px-3 py-1 rounded-full bg-[#F2F2F2]">
+              {tag}
+            </span>
+  
+          ))}
+        </div>
+        <!-- {post.category.map(cate => (
+          <a href={`/category/${slugify(cate)}`} class="bg-gray-200 px-2 py-1 text-sm rounded hover:bg-gray-300">
+            {cate}
+          </a>
+        ))} -->
+  
+        {/* Date */}
+        <!-- <p class="text-xs text-gray-500">{formatDate(post.publishedAt)}</p> -->
+  
+        {/* Title */}
+        <h3 class="text-lg font-semibold">{post.title}</h3>
+      </div>
+    </a>
+  </div>

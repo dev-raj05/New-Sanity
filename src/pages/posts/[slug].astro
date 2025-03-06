@@ -1,0 +1,263 @@
+---
+// ./src/pages/post/[slug].astro
+import type { SanityDocument } from "@sanity/client";
+import { loadQuery } from "../../lib/load-query";
+import Layout from "../../layouts/Layout.astro";
+import {slugify} from '../../lib/Slugify'
+import {formatDate} from '../../lib/Formatdate'
+import PortableText from "../../components/PortableText.astro";
+import "../../styles/global.css";
+
+export const prerender = true;
+export async function getStaticPaths() {
+  try {
+    const { data: posts } = await loadQuery<SanityDocument[]>({
+      query: `*[_type == "post"]`,
+    });
+    if (!posts || posts.length === 0) {
+      console.warn("No posts found in Sanity.");
+      return [];
+    }
+    return posts.map(({ slug }) => ({
+      params: { slug: slug.current },
+    }));
+  } catch (error) {
+    console.error("Error fetching posts from Sanity:", error);
+    return [];
+  }
+}
+
+const { params } = Astro;
+
+const querypost =`*[_type == 'post' && slug.current == $slug][0]{
+  title,
+  "slug": slug.current,
+  "mainImage": coalesce(mainImage.asset->url, ""),
+  "author":author->name,
+  body,
+  publishedAt,
+  tags,
+}`;
+
+const { data: post } = await loadQuery({
+  query: querypost,
+  params,
+});
+---
+
+<Layout title={post.title} description={"Sigle post"}>
+
+  <main class="px-4 md:px-10 lg:px-20 py-10 max-w-4xl mx-auto mt-5">
+    <article class="prose mx-auto dark:prose-invert text-center w-full">
+      
+      <!-- Blog Title -->
+      <h1 class="text-3xl md:text-4xl font-bold leading-tight mb-6">{post.title}</h1>
+  
+      <!-- Blog Image -->
+      {post.mainImage && (
+        <div class="w-full overflow-hidden rounded-xl shadow-lg">
+          <img class="head-img" src={post.mainImage} alt={post.alt} />
+        </div>
+      )}
+    
+  
+      <!-- Tags -->
+      <div class="flex flex-wrap justify-center gap-3 mt-7">
+        {post.tags.map((tag) => (
+          <span class="badge badge-outline k px-3 py-1 rounded-full bg-[#F2F2F2] hover:scale-105 transition">
+            <a href={`/tags/${slugify(tag)}/`} class="">{tag}</a>
+            
+          </span>
+        ))}
+      </div>
+      
+      <div class="mt-4 text-sm text-gray-500">
+        <a href={`/author/${slugify(post.author)}/`} class="text-lg font-bold cursor-pointer">Created by {post.author}</a>
+       
+      </div>
+      
+  
+      <!-- Publish Date -->
+      <div class="mt-4 text-sm text-gray-500">
+        <small>Published on {post.publishedAt}</small>
+        <p class="text-xs text-gray-500">{formatDate(post.publishedAt)}</p>
+        <!-- <small></small> -->
+      </div>
+      
+  
+    </article>
+  
+    <!-- Blog Content -->
+    <div class="mt-12">
+      <PortableText portableText={post.body} />
+      <!-- <RichTextRenderer content={post.body} client:load /> -->
+       
+    </div>
+    
+    
+    
+    <!-- Social Share Section -->
+    <div class="max-w-3xl mx-auto p-6  text-center">
+
+        <div class="relative flex items-center justify-end">
+          <!-- Share Button -->
+          <button
+            class="share-btn relative border-none bg-black text-white rounded-full w-10 h-10 flex items-center justify-center text-3xl shadow-md hover:scale-105 transition-transform cursor-pointer z-10"
+          >
+            <!-- <Icon name="share" size={30} /> -->
+          </button>
+
+        
+          <!-- Share Options -->
+          <div
+            id="share-options"
+            class="absolute bottom-20 left-1/2 -translate-x-1/2 w-[280px] md:w-[320px] bg-gray-900 bg-opacity-80 text-white p-4 rounded-lg shadow-lg opacity-0 scale-95 pointer-events-none transition-all duration-300"
+          >
+            <!-- Title -->
+            <p class="text-lg font-semibold uppercase border-b border-white pb-2 mb-3 text-center">
+              Share
+            </p>
+        
+            <!-- Social Media Links -->
+            <div class="flex justify-around items-center">
+              <!-- Facebook -->
+              <a
+                href="https://www.facebook.com/sharer/sharer.php?u=yourURL"
+                target="_blank"
+                class="p-3 rounded-full bg-white hover:scale-110 transition-transform"
+              >
+                <!-- <Icon name="facebook" size={24} /> -->
+              </a>
+        
+              <!-- Twitter/X -->
+              <a
+                href="https://twitter.com/intent/tweet?url=yourURL&text=yourTitle"
+                target="_blank"
+                class="p-3 rounded-full bg-white text-black hover:scale-110 transition-transform"
+              >
+                <!-- <Icon name="X" size={24} /> -->
+              </a>
+        
+              <!-- LinkedIn -->
+              <a
+                href="https://www.linkedin.com/shareArticle?mini=true&url=yourURL&title=yourTitle"
+                target="_blank"
+                class="p-3 rounded-full bg-white hover:scale-110 transition-transform"
+              >
+                <!-- <Icon name="Linkedin" size={24} /> -->
+              </a>
+        
+              <!-- WhatsApp -->
+              <a
+                href="https://wa.me/?text=yourTitle yourURL"
+                target="_blank"
+                class="p-3 rounded-full bg-green-100 hover:scale-110 transition-transform"
+              >
+                <!-- <Icon name="whatsapp" size={24} /> -->
+              </a>
+        
+              <!-- Copy URL -->
+              <span
+                id="copy-url-btn"
+                class="p-3 rounded-full bg-gray-300 hover:scale-110 transition-transform cursor-pointer"
+              >
+                <!-- <Icon name="copyicon" size={24} /> -->
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <script>
+          document.addEventListener("DOMContentLoaded", function () {
+            const shareButton = document.querySelector(".share-btn");
+            const shareOptions = document.getElementById("share-options");
+            const copyUrlBtn = document.getElementById("copy-url-btn");
+        
+            shareButton.addEventListener("click", function () {
+              // Toggle visibility of share options
+              shareOptions.classList.toggle("opacity-0");
+              shareOptions.classList.toggle("scale-95");
+              shareOptions.classList.toggle("pointer-events-none");
+            });
+        
+            // Close the share options if clicking outside
+            document.addEventListener("click", function (event) {
+              if (!shareButton.contains(event.target) && !shareOptions.contains(event.target)) {
+                shareOptions.classList.add("opacity-0");
+                shareOptions.classList.add("scale-95");
+                shareOptions.classList.add("pointer-events-none");
+              }
+            });
+        
+            // Copy the current URL to clipboard
+            copyUrlBtn.addEventListener("click", function () {
+              navigator.clipboard.writeText(window.location.href).then(() => {
+                alert("URL copied to clipboard!");
+              });
+            });
+          });
+        </script>
+        
+        
+        <script>
+          const sharebtn = document.querySelector('.share-btn')
+          const shareOptions = document.getElementById('#share-options')
+
+          sharebtn?.addEventListener('click',()=>{
+            shareOptions?.classList.toggle('active')
+          })
+        </script>
+        
+    </div>
+    <!-- <Subscribe/> -->
+    
+    <script>
+      function copyCurrentURL() {
+        navigator.clipboard.writeText(window.location.href)
+          .then(() => {
+            const btn = document.getElementById("copy-url-btn");
+            btn.textContent = "Copied!";
+            setTimeout(() => btn.textContent = "Copy URL", 2000);
+          })
+          .catch(err => console.error("Error copying URL:", err));
+      }
+    </script>
+    
+    <!-- <div class="mt-6">
+      <button 
+        onclick={"copyLink()"}
+        class="bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-600"
+      >
+        Copy Link
+      </button>
+    </div> -->
+  </main>
+  
+  <script type="text/javascript">
+    // Function to copy the current page URL
+    function copyCurrentURL() {
+      const btn = document.getElementById('copy-url-btn'); // Remove '#' from the ID
+      const url = window.location.href; // Get the current page URL
+      navigator.clipboard.writeText(url) // Copy URL to clipboard
+        .then(() => {
+          btn.textContent = "Copied!"; // Change the button text to "Copied!"
+          // Optionally, you can use an alert here as well
+          // alert('URL copied to clipboard!');
+        })
+        .catch((err) => {
+          console.error('Failed to copy URL: ', err); // Handle any errors
+        });
+    }
+  </script>
+  
+  
+  <!-- <div>
+    <button class="share-btn">
+      <Icon name="share" size={30}/>
+    </button>
+    <div class="share-options">
+      <p class="title">share</p>
+    </div>
+  </div> -->
+  
+</Layout>

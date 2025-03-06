@@ -1,0 +1,104 @@
+---
+import { Icon } from 'astro-icon/components'
+
+---
+
+<nav class="bg-white mt-10 w-full">
+    <div class="flex justify-between items-center mx-auto max-w-6xl h-[4rem]">
+        <!-- Hamburger Menu for Mobile -->
+        <button id="menu-btn" class="md:hidden text-2xl">
+            ☰
+        </button>
+
+        <!-- Left Navigation Links (Hidden on Mobile) -->
+        <div class="hidden md:flex items-center gap-10">
+            <a href="https://booleanmaths.com/" target="_blank" class="cursor-pointer transition-transform duration-500 hover:-translate-y-1 hover:scale-105">Product</a>
+            <a href="https://medium.com/@booleanmaths" target="_blank" class="cursor-pointer transition-transform duration-500 hover:-translate-y-1 hover:scale-105">Resources</a>
+            <a href="https://booleanmaths.com/pricing" target="_blank" class="cursor-pointer transition-transform duration-500 hover:-translate-y-1 hover:scale-105">Pricing</a>
+        </div>
+
+        <!-- Center Logo -->
+        <div class="flex justify-center items-center">
+            <a href="/"><Icon name="Master" size={160}/></a>
+        </div>
+
+        <!-- Right Buttons (Hidden on Mobile) -->
+        <div class="hidden md:flex items-center gap-5">
+            <a href="https://app.booleanmaths.com/login" target="_blank">
+
+                <button class=" px-6 py-2 rounded-md cursor-pointer transition-transform duration-500 hover:-translate-y-1 hover:scale-105">Login</button>
+            </a>
+            <a href="">
+                <button 
+                    class="
+                        bg-gradient-to-r from-[#414141] to-[#000000] 
+                        text-white 
+                        rounded-lg 
+                        px-6 
+                        py-2 
+                        text-base 
+                        font-medium 
+                        cursor-pointer 
+                        transition-transform 
+                        duration-500 
+                        hover:-translate-y-1 
+                        hover:scale-105
+                    "
+                    >
+                    Book Demo
+                </button>
+
+            </a>
+        </div>
+    </div>
+
+    <!-- Sidebar for Mobile -->
+    <div id="sidebar" class="fixed top-0 left-0 w-[250px] h-full bg-white shadow-lg p-5 transform -translate-x-full transition-transform duration-300 md:hidden">
+        <button id="close-btn" class="text-2xl absolute top-2 right-4">✖</button>
+        <div class="flex flex-col items-start gap-4 mt-10">
+            <a href="https://booleanmaths.com/" target="_blank" class="block py-2">Product</a> 
+            <a href="https://medium.com/@booleanmaths" target="_blank" class="block py-2">Resources</a>
+            <a href="https://booleanmaths.com/pricing" target="_blank" class="block py-2">Pricing</a>
+            <a href="https://app.booleanmaths.com/login" target="_blank">
+                <button class="border px-6 py-2 rounded-md w-full">Login</button>
+            </a>
+            <a href="https://booleanmaths.com/#booking" target="_blank">
+
+                <button 
+                    class="
+                      
+                        bg-gradient-to-r from-[#414141] to-[#000000]
+                        text-white 
+                        rounded-lg 
+                        px-6 
+                        py-2 
+                        text-base 
+                        font-medium 
+                        cursor-pointer 
+                        transition-transform 
+                        duration-500 
+                        hover:-translate-y-1 
+                        hover:scale-105
+                    "
+                    >
+                    Book Demo
+                    </button>
+
+            </a>
+        </div>
+    </div>
+</nav>
+
+<script>
+    const menuBtn = document.getElementById("menu-btn");
+    const closeBtn = document.getElementById("close-btn");
+    const sidebar = document.getElementById("sidebar");
+
+    menuBtn.addEventListener("click", () => {
+        sidebar.classList.remove("-translate-x-full");
+    });
+
+    closeBtn.addEventListener("click", () => {
+        sidebar.classList.add("-translate-x-full");
+    });
+</script>
